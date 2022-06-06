@@ -4,7 +4,7 @@ import joblib
 
 app = Flask(__name__)
 
-dataframe = pd.read_csv('./static/api_df_2.csv')
+dataframe = pd.read_csv('./static/app_df_10000.csv')
 
 @app.route('/get_customer_id/', methods=['POST'])
 def get_customer_id():

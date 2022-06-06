@@ -8,26 +8,26 @@ import streamlit.components.v1 as components
 
 st.set_page_config(
    page_title="Dashboard",
-   page_icon = "./static/icon.png"
+   page_icon = "./static/icon_pret_a_depenser.png"
 )
 
 def post_customer_id(customer_id):
-    return requests.post('http://localhost:5000/get_customer_id/', 
+    return requests.post('http://35.173.161.134:5000/get_customer_id/', 
                           json={"customer_id": "{}".format(customer_id)}).json()
 
 @st.cache()
 def get_setup_infos():
-    return requests.get('http://localhost:5000/get_setup_infos').json()
+    return requests.get('http://35.173.161.134:5000/get_setup_infos').json()
 
 def predict_proba_customer(customer_id):
-    return requests.post('http://localhost:5000/get_prediction_proba/', json={"customer_id": "{}".format(customer_id)}).json()
+    return requests.post('http://35.173.161.134:5000/get_prediction_proba/', json={"customer_id": "{}".format(customer_id)}).json()
 
 def post_feature_customer_value(customer_id, feature_name):
-    return requests.post('http://localhost:5000/get_feature_customer_value', json={"customer_id": "{}".format(customer_id),
+    return requests.post('http://35.173.161.134:5000/get_feature_customer_value', json={"customer_id": "{}".format(customer_id),
                                                                                    "feature_name": "{}".format(feature_name)}).json()
 
 def get_group_value(feature, category, customer_category_value):
-    return requests.post('http://localhost:5000/get_group_value', json={"feature": "{}".format(feature),
+    return requests.post('http://35.173.161.134:5000/get_group_value', json={"feature": "{}".format(feature),
                                                                         "category": "{}".format(category),
                                                                         "customer_category_value": "{}".format(customer_category_value)
                                                                         }).json()
@@ -40,13 +40,12 @@ st.components.v1.html("""<body style="margin: 0">
                         <body>""", 
                       width=None, height=50, scrolling=False)
 
-
+typed_id = st.text_input('Enter a customer ID', value="", placeholder="You can try 100002 or 100003")
+selected_id = post_customer_id(typed_id)['customer_id']
 
 with st.spinner('Select Box Loading...'):
 
     setup_infos = get_setup_infos()
-    typed_id = st.text_input('Enter a customer ID', value="", placeholder="You can try 131797 or 133636")
-    selected_id = post_customer_id(typed_id)['customer_id']
     selected_feature = st.selectbox('Choose a feature to explore:', setup_infos['all_features'])
     selected_category = st.selectbox('Choose a group to compare with :', setup_infos['all_categories'])
 
