@@ -7,8 +7,8 @@ source venv/bin/activate
 
 # Install necessary packages
 
-pip install -r requirements.txt
+cat requirements.txt | xargs -n 1 pip install
 
-# Launch the server
+# Launch the client
 
 streamlit run index.py
