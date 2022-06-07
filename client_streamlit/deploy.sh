@@ -11,4 +11,4 @@ pip install -r requirements.txt
 
 # Launch the server
 
-python controller.py
+streamlit run index.py
