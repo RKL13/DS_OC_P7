@@ -5,6 +5,7 @@ import seaborn as sns
 import pandas as pd
 import re
 import streamlit.components.v1 as components
+import plotly.express as px
 
 st.set_page_config(
    page_title="Dashboard",
@@ -101,40 +102,36 @@ else:
             if feature_group_value['group_value']['count'] == 0:
                 st.subheader('No Visualization available (NaNs)')
             else:
-                fig, ax = plt.subplots()
-                sns.boxplot(data=feature_group_value['values_list'],
-                            orient='h',
-                            showmeans=True,
-                            ax = ax)
-                ax.axvline(feature_customer_value['feature_customer_value'], color='red')
-
-                plt.title('{} representation inside {} category = {}'.format(re.sub('_', ' ', selected_feature.lower()),
+                fig = px.box(
+                            pd.DataFrame(
+                                feature_group_value['values_list'], 
+                                columns=['SK_ID_CURR',selected_feature]),
+                            y=selected_feature,
+                            hover_data=['SK_ID_CURR',selected_feature],
+                            points="all",
+                            labels={
+                                    "variable": re.sub('_', ' ', selected_feature.lower())
+                            },
+                            title='{} representation inside {} category = {}'.format(re.sub('_', ' ', selected_feature.lower()),
                                                                             re.sub('_', ' ', selected_category.lower()), 
-                                                                            category_customer_value['feature_customer_value']), 
-                        pad = 20)
-
-                st.pyplot(fig)
+                                                                            category_customer_value['feature_customer_value']))
+                fig.update_xaxes(tickvals=[""])
+                fig.add_hline(y=feature_customer_value['feature_customer_value'],
+                              annotation_text="You are here")
+                st.plotly_chart(fig)
         else:
 
             if len(feature_group_value['group_value']) == 0:
                 st.subheader('No Visualization available (NaNs)')
             else :
-                fig, ax = plt.subplots()
-                sns.barplot(data=pd.DataFrame(feature_group_value['group_value'].items()), x=0, y=1,
-                            ax=ax)
-
-                for bars in ax.containers:
-                    ax.bar_label(bars, fmt='%.2f')
-
-                ax.set_ylim((0,100))
-                ax.set_ylabel('Percentages')
-                ax.set_xlabel('Subcategories')
-
-                plt.title('Representation among {} = {}'.format(re.sub('_', ' ', selected_category.lower()), 
-                                                                category_customer_value['feature_customer_value']), 
-                        pad = 20)
-
-                if pd.DataFrame(feature_group_value['group_value'].items()).shape[0] > 4:
-                    ax.tick_params(axis='x', rotation=90)
-
-                st.pyplot(fig)
+                fig = px.bar(
+                        pd.DataFrame(data=list(dict(feature_group_value['group_value']).values()), 
+                                     index = list(dict(feature_group_value['group_value']).keys()),
+                            columns = ['Percentages']),
+                        text_auto=True,
+                        labels={"value": "Percentages",
+                                "index": ""},
+                        title='Representation among {} = {}'.format(re.sub('_', ' ', selected_category.lower()), 
+                                                                 category_customer_value['feature_customer_value'])
+                        )
+                st.plotly_chart(fig)

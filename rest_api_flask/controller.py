@@ -96,14 +96,14 @@ def get_group_value():
         # EVERY_CLIENTS
         if request_data['category'] == 'EVERY_CLIENTS':
             group_value = dict(dataframe[feature].describe())
-            values_list = dataframe[feature].values.tolist()
+            values_list = dataframe[['SK_ID_CURR', feature]].values.tolist()
             return {'feature_type': 'Numerical',
                     'group_value' : group_value,
                     'values_list': values_list}
         # SubGroup
         else:
             group_value = dict(dataframe[dataframe[category] == customer_category_value][feature].describe())
-            values_list = dataframe[dataframe[category] == customer_category_value][feature].values.tolist()
+            values_list = dataframe[dataframe[category] == customer_category_value][['SK_ID_CURR', feature]].values.tolist()
             return {'feature_type': 'Numerical',
                     'group_value' : group_value,
                     'values_list': values_list}
@@ -111,13 +111,19 @@ def get_group_value():
     else:
         # EVERY_CLIENTS
         if request_data['category'] == 'EVERY_CLIENTS':
-            group_value = dict(dataframe[feature].value_counts(normalize=True).mul(100))
+            group_value = dataframe[feature].value_counts(normalize=True).mul(100)
+            group_value.index = group_value.index.fillna('Missing values')
+            group_value = dict(group_value)
             return {'feature_type': 'Categorical',
                     'group_value' : group_value}
         # SubGroup
         else:
-            group_value = dict(dataframe[dataframe[category] == customer_category_value][feature]\
-                               .value_counts(dropna=False, normalize=True).mul(100))
+            group_value = dataframe[dataframe[category] == customer_category_value][feature]\
+                               .value_counts(dropna=False, normalize=True).mul(100)
+
+            group_value.index = group_value.index.fillna('Missing values')
+
+            group_value = dict(group_value)
 
             return {'feature_type': 'Categorical',
                     'group_value' : group_value}
