@@ -101,3 +101,4 @@ webencodings==0.5.1
 widgetsnbextension==3.6.0
 zipp==3.8.0
 plotly==5.8.1
+shap==0.40.0
