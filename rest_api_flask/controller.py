@@ -199,7 +199,8 @@ def get_force_plot():
         specific_shap_value = tree_explainer.shap_values(row_transformed)
 
         return {'specific_shap_value': specific_shap_value[1][0].tolist(),
-                'feature_names': columns_names_out_cleaned}
+                'feature_names': columns_names_out_cleaned,
+                'expected_value_shap': tree_explainer.expected_value[0]}
 
 @app.route('/get_summary_plot')
 def get_summary_plot():
