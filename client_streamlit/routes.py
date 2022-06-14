@@ -49,3 +49,10 @@ def get_group_value(feature, category, customer_category_value):
                                                                 "category": "{}".format(category),
                                                                 "customer_category_value": "{}".format(customer_category_value)
                                                                 }).json()
+
+@st.cache()
+def get_summary_plot():
+
+    """ Returns base 64 encoded summary plot """
+
+    return requests.get(api_domain + 'get_summary_plot').json()

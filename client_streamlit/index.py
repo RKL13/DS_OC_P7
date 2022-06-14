@@ -9,6 +9,8 @@ import plotly.express as px
 import shap
 import numpy as np
 import routes
+from PIL import Image
+import base64
 
 # Gives a title an an icon to the web page
 
@@ -32,7 +34,7 @@ components.html("""<body style="margin: 0">
 
 # Given an id checks if it exists
 
-typed_id = st.text_input('Enter a customer ID', value="", placeholder="You can try 100002 or 100003")
+typed_id = st.text_input('Enter a customer ID', value="", placeholder="You can try (0) 112982, 102359 or (1) 131797, 115069")
 selected_id = routes.post_customer_id(typed_id)['customer_id']
 
 # Loads features names and categorical feature names to display them in select box
@@ -53,10 +55,18 @@ else:
     with st.spinner('Computing Prediction...'):
         prediction = routes.predict_proba_customer(selected_id)
 
-        if prediction['prediction'] >= 0.5:
-            st.success('Loan Accepted ! Score : {}/100'.format(round(prediction['prediction']*100, 2)))
+        if prediction['prediction'] >= 0.93:
+            st.success('Loan Accepted ! Score : {}'.format(round(prediction['prediction']*100)))
         else:
-            st.error('Unfortunately the loan isn\'t accepted. Score : {}/100'.format(round(prediction['prediction']*100, 2)))
+            st.error('Unfortunately the loan isn\'t accepted. Score : {} [Mininmum Required : 97]'.format(round(prediction['prediction']*100)))
+
+    # Retrieves and displays the summary plot
+
+    with st.spinner('Loading Summary Plot...'):
+        st.write('Usualy these features contributes the most to the score :')
+        summary_plot = routes.get_summary_plot()
+        image = base64.b64decode(summary_plot['summary_plot'])
+        st.image(image)
 
     # Retrieves the api computed shap value and feature forces to force plot
     # them
@@ -67,14 +77,17 @@ else:
         specific_shap_value = get_force_plot_values['specific_shap_value']
         # Loads features names into a variable
         specific_shap_value_features = get_force_plot_values['feature_names']
+        # Loads shap expected value
+        specific_shap_expected_value = get_force_plot_values['expected_value_shap']
         # Plots the above variables
-        force_plot = shap.force_plot(0, 
+        force_plot = shap.force_plot(specific_shap_expected_value, 
                                      np.array(specific_shap_value), 
-                                     feature_names=specific_shap_value_features)
+                                     feature_names=specific_shap_value_features,
+                                     link='logit')
         # Creates a HTML component with get.js() in the head to be able to display
         # the force plot
         force_plot_html = f"<head>{shap.getjs()}</head><body>{force_plot.html()}</body>"
-        st.write('About the features that impacted the most the above score :')
+        st.write('About the features that impacted the most your score :')
         components.html(force_plot_html)
 
     # Retrives and displays the customer data of the above given features through selectboexs
@@ -129,7 +142,7 @@ else:
                 st.subheader('No Visualization available (NaNs)')
             else:
                 # Feature is numerical => Boxplot (with striplot by its side to
-                # see the id of customers and locate them)
+                # see the id of customers and locate them) + Histogram
                 fig = px.box(
                             pd.DataFrame(
                                 feature_group_value['values_list'], 
@@ -147,6 +160,21 @@ else:
                 fig.add_hline(y=feature_customer_value['feature_customer_value'],
                               annotation_text="You are here")
                 st.plotly_chart(fig)
+
+                fig2 = px.histogram(
+                            pd.DataFrame(
+                                feature_group_value['values_list'], 
+                                columns=['SK_ID_CURR',selected_feature]),
+                            x=selected_feature,
+                            title='{} \'s histogram inside {} category = {}'.format(re.sub('_', ' ', selected_feature.lower()),
+                                                                            re.sub('_', ' ', selected_category.lower()), 
+                                                                            category_customer_value['feature_customer_value'])
+                            )
+
+                fig2.add_vline(x=feature_customer_value['feature_customer_value'],
+                              annotation_text="You are here")
+                
+                st.plotly_chart(fig2)
         else:
 
             if len(feature_group_value['group_value']) == 0:

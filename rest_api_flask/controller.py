@@ -1,22 +1,58 @@
-from flask import Flask, abort, request 
+from flask import Flask, abort, request, jsonify
 import pandas as pd
 import joblib
 import shap
 import re
+import matplotlib.pyplot as plt
+from PIL import Image
+import io
+import base64
 
 app = Flask(__name__)
 
 # Loads the Dataframe
 
-dataframe = pd.read_csv('./static/app_df_10000.csv')
+dataframe = pd.read_csv('./static/app_6000.csv')
 
 # Loads the Model
-model=open("./machine/test_light_gbm.pkl","rb")
+model=open("./machine/lightgbm_all_data.pkl","rb")
 lgbm_model=joblib.load(model)
 
 # Loads and intits the shap TreeExplainer on the model
 
 tree_explainer = shap.TreeExplainer(lgbm_model[-1])
+
+# Computes shap values at the server init because these won't change until
+# CSV is changed
+
+# Transforms dataframe
+
+X_transformed = lgbm_model[:-1].transform(dataframe.iloc[:,1:])
+
+# Retreives features names after transformation
+columns_names_out = lgbm_model[:-1].get_feature_names_out()
+
+# Removes added Pipelines particules
+
+columns_names_out_cleaned = \
+            [re.sub('(Categorical_pipeline__)|(Numerical_pipeline__)', '', i) 
+            for i in columns_names_out]
+
+# Computes shap values for all transformed individuals
+# N.B : One can reduce the sample size using shap.sample if it is too large
+
+all_shap_values = tree_explainer.shap_values(X_transformed)
+
+# Creates a matplotlib figure 
+
+shap.summary_plot(all_shap_values, 
+                  feature_names=columns_names_out_cleaned, 
+                  show=False)
+
+plt.tight_layout()
+plt.savefig('./static/summary_plot.png')
+
+# Routing
  
 @app.route('/get_customer_id/', methods=['POST'])
 def get_customer_id():
@@ -164,6 +200,19 @@ def get_force_plot():
 
         return {'specific_shap_value': specific_shap_value[1][0].tolist(),
                 'feature_names': columns_names_out_cleaned}
+
+@app.route('/get_summary_plot')
+def get_summary_plot():
+
+    """ Returns base 64 encoded summary plot """
+
+    img = Image.open("./static/summary_plot.png", mode='r')
+    img_byte_arr = io.BytesIO()
+    img.save(img_byte_arr, format='PNG')
+    encoded_img = base64.encodebytes(img_byte_arr.getvalue()).decode('ascii')
+
+
+    return jsonify({'summary_plot': encoded_img})
 
 
 # Runs the app on port :5000
