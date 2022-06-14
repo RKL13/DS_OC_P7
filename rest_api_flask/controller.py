@@ -198,7 +198,7 @@ def get_force_plot():
         # Computes a local SHAP value
         specific_shap_value = tree_explainer.shap_values(row_transformed)
 
-        return {'specific_shap_value': specific_shap_value[1][0].tolist(),
+        return {'specific_shap_value': specific_shap_value[0][0].tolist(),
                 'feature_names': columns_names_out_cleaned,
                 'expected_value_shap': tree_explainer.expected_value[0]}
 
