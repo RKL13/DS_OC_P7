@@ -11,7 +11,7 @@ This project is divided into three main files :
 
 **client_streamlit** is the client dashboard coded in python with Streamlit package
 
-**rest_api_flask** is the API where one can find the customer data (only a sample -- 10 000 -- of customers here), the serialized trained model, and the client's business logic.
+**rest_api_flask** is the API where one can find the customer data (only a sample -- 6000 -- of customers here), the serialized trained model, and the client's business logic.
 
 **notebooks_presentation_methodology** is a file where we gather the data science work that explain the path taken to select and train the used model.
 
