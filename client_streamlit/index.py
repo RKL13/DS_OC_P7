@@ -55,10 +55,10 @@ else:
     with st.spinner('Computing Prediction...'):
         prediction = routes.predict_proba_customer(selected_id)
 
-        if prediction['prediction'] >= 0.93:
+        if prediction['prediction'] >= 0.92:
             st.success('Loan Accepted ! Score : {}'.format(round(prediction['prediction']*100)))
         else:
-            st.error('Unfortunately the loan isn\'t accepted. Score : {} [Mininmum Required : 97]'.format(round(prediction['prediction']*100)))
+            st.error('Unfortunately the loan isn\'t accepted. Score : {} [Mininmum Required : 92]'.format(round(prediction['prediction']*100)))
 
     # Retrieves and displays the summary plot
 
