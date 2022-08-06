@@ -1,8 +1,15 @@
 # Implement a scoring model
 
   
-This project attempts to score credit applicants' home credit default risk. 
-Also, a Dashboard is deployed to help understand the given score. 
+### Overview: Classification of credit applicants to predict their creditworthiness. 
+### Implementation of an interactive dashboard that displays classification results of a given customer as well as some related statistics.
+
+After cleaning the data (mainly with a kernel Kaggle that applies typical table joins, aggregations, and imputations), the EDA primarily shows that our targets are imbalanced (the minority class being the uncreditworthy clients). The data is rebalanced with undersampling and oversampling techniques such as SMOTE or Cluster Under Sampling. 
+ 
+Four models are implemented (logistic regression, random forest, XGBoost, LightGBM), optimized (grid search), and compared with a 5 folds cross-validation (stratification included). The ROC-AUC metric is selected to compare those models. LightGBM model with a calibrated threshold is chosen, trained, and interpreted (with Shapley values).
+
+The interactive dashboard has a Flask backend with the trained model and a Streamlit client with Plotly's visualization for interactivity. Both the backend and client are powered on AWS's EC2 instances.
+
 One can find the Dashboard at http://18.233.144.105:8501/. 
 
 ### Structure
