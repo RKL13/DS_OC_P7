@@ -1,8 +1,7 @@
 # Implement a scoring model
 
   
-### Overview: Classification of credit applicants to predict their creditworthiness. 
-### Implementation of an interactive dashboard that displays classification results of a given customer as well as some related statistics.
+### Overview: Classification of credit applicants to predict their creditworthiness. Implementation of an interactive dashboard that displays classification results of a given customer as well as some related statistics.
 
 After cleaning the data (mainly with a kernel Kaggle that applies typical table joins, aggregations, and imputations), the EDA primarily shows that our targets are imbalanced (the minority class being the uncreditworthy clients). The data is rebalanced with undersampling and oversampling techniques such as SMOTE or Cluster Under Sampling. 
  
